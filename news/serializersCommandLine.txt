@@ -1,0 +1,55 @@
+(venv) D:\Projects\Django\REST\newsapi>py manage.py shell
+Python 3.7.2 (tags/v3.7.2:9a3ffc0492, Dec 23 2018, 22:20:52) [MSC v.1916 32 bit (Intel)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from news.models import Article
+>>> from news.api.serializers import ArticleSerializer
+>>> article_instance = Article.objects.first()
+>>> article_instance
+<Article: John Doe Happy Birthday>
+>>> serializer = ArticleSerializer(article_instance)
+>>> serializer
+ArticleSerializer(<Article: John Doe Happy Birthday>):
+    id = IntegerField(read_only=True)
+    author = CharField()
+    title = CharField()
+    description = CharField()
+    body = CharField()
+    location = CharField()
+    publication_date = DateField()
+    active = BooleanField()
+    created_at = DateTimeField(read_only=True)
+    updated_at = DateTimeField(read_only=True)
+>>> serializer.data
+{'id': 1, 'author': 'John Doe', 'title': 'Happy Birthday', 'description': 'some fancy descriptions', 'body': 'some body conents', 'location': 'Earth', 'publication_date': '2020-05-11',
+'active': True, 'created_at': '2020-05-11T18:19:17.384803Z', 'updated_at': '2020-05-11T18:19:17.384803Z'}
+>>> from rest_framework.renderers import JSONRenderer
+>>> json = JSONRenderer().render(serializer.data)
+>>> json
+b'{"id":1,"author":"John Doe","title":"Happy Birthday","description":"some fancy descriptions","body":"some body conents","location":"Earth","publication_date":"2020-05-11","active":tru
+e,"created_at":"2020-05-11T18:19:17.384803Z","updated_at":"2020-05-11T18:19:17.384803Z"}'
+>>> import io
+>>> from rest_framework.parsers import JSONParser
+>>> stream = io.BytesIO(json)
+>>> data = JSONParser().parse(stream)
+>>> data
+{'id': 1, 'author': 'John Doe', 'title': 'Happy Birthday', 'description': 'some fancy descriptions', 'body': 'some body conents', 'location': 'Earth', 'publication_date': '2020-05-11',
+'active': True, 'created_at': '2020-05-11T18:19:17.384803Z', 'updated_at': '2020-05-11T18:19:17.384803Z'}
+>>> serializer = ArticleSerializer(data=data)
+>>> serializer.is_valid()
+True
+>>> serializer.validated_data
+OrderedDict([('author', 'John Doe'), ('title', 'Happy Birthday'), ('description', 'some fancy descriptions'), ('body', 'some body conents'), ('location', 'Earth'), ('publication_date',
+datetime.date(2020, 5, 11)), ('active', True)])
+>>> serializer.save()
+{'author': 'John Doe', 'title': 'Happy Birthday', 'description': 'some fancy descriptions', 'body': 'some body conents', 'location': 'Earth', 'publication_date': datetime.date(2020, 5,
+11), 'active': True}
+<Article: John Doe Happy Birthday>
+>>> Article.Objects.all()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: type object 'Article' has no attribute 'Objects'
+>>> Article.objects.all()
+<QuerySet [<Article: John Doe Happy Birthday>, <Article: John Doe Happy Birthday>]>
+>>>
+
